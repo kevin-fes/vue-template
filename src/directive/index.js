@@ -36,7 +36,7 @@ export const resizeFoot = {
           let getHeight = document.body.clientHeight;
           return getHeight;
         }
-        let check = () => {
+        el.check = () => {
           let currHeight = getCurrHeight();
           if(currHeight != originalHeight) {
             hide();
@@ -44,10 +44,11 @@ export const resizeFoot = {
             reset();
           }
         }
-        window.addEventListener('resize', check);
+        window.addEventListener('resize', el.check);
       },
-      unbind() {
-        window.removeEventListener('resize',check);
+      unbind(el) {
+        window.removeEventListener('resize',el.check);
+        el.check = null;
       }  
     }
   }
