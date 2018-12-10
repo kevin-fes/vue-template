@@ -10,6 +10,7 @@ import store from './store/index'
 import {fetch} from './service/fetch'
 
 require('./service/polyfill');
+require('./libs/webform.js')
 
 
 // 本地组件

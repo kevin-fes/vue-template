@@ -1,8 +1,8 @@
 {
-  "name": "mbd",
+  "name": "{{name}}",
   "version": "1.0.0",
-  "description": "mbd",
-  "author": "kevinmin",
+  "description": "{{description}}",
+  "author": "{{author}}",
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "axios": "^0.16.2",
+    "handlebars": "^4.0.12",
     "vue": "^2.5.2",
     "vue-router": "^2.7.0",
     "vuex": "^3.0.0"
