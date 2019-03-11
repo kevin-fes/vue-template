@@ -1,11 +1,9 @@
 <template>
-  <div id="mapp" v-cloak  :class="['flex-column',(Evn.isFullpage && Evn.isRong360 && Evn.isIphoneX)?'padding-top-ipx':(Evn.isFullpage && Evn.isRong360)?'padding-top-nipx':'']">
+  <div id="mapp" v-cloak class='flex-column'>
     <transition :name="transitionName" :mode="mode" :key="$route.fullPath">
-      <router-view  class="router-item  flex-1 width-100" v-if="Evn.isAndroid" v-stop-scroll-android> </router-view>
-      <router-view  class="router-item  flex-1 width-100" v-else></router-view>
+      <router-view  class="router-item  flex-1 width-100"></router-view>
     </transition>
-    <Foot v-resize-foot v-if="$route.meta.tabName" @tabTo="onTabTo"/>
-
+ <!--    <Foot v-if="$route.meta.tabName" @tabTo="onTabTo"/> -->
   </div>
 </template>
 
@@ -13,11 +11,10 @@
 import Foot from '@/components/foot.vue'
 import mixins from './mixins'
 import {Evn} from './service/env'
-import {stopScrollAndroid,resizeFoot} from './directive'
 import {mapState} from 'vuex';
 export default {
   name: 'app',
-  mixins:[mixins,stopScrollAndroid,resizeFoot],
+  mixins:[mixins],
   data (){
     return {
       Evn:Evn,

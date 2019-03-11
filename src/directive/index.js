@@ -1,118 +1,45 @@
 import {Evn} from '../service/env'
 
-export const stopScrollAndroid = {
-  directives: {
-    'stop-scroll-android': {
-      bind: (el, binding) => {
-        el.addEventListener('touchmove', (e) => {
-          e && (e._isScroller = true)
-          return false;
-
-        }, false)
-      }
-    }
-  }
-};
-
-// 解决在安卓手机上 当输入框弹起的时候 底部foot隐藏
-export const resizeFoot = {
-  directives: {
-    'resize-foot': {
-      bind(el, binding) {
-        let elStyle = el.style;
-        let active = false;
-        let originalHeight = document.body.clientHeight;
-        let reset = () => {
-          if(!active) return false;
-          elStyle.display = 'flex';
-          active = false;
-        }
-        let hide = () => {
-          if(active)return false;
-          elStyle.display = 'none'
-          active = true;
-        }
-        let getCurrHeight = () => {
-          let getHeight = document.body.clientHeight;
-          return getHeight;
-        }
-        el.check = () => {
-          let currHeight = getCurrHeight();
-          if(currHeight != originalHeight) {
-            hide();
-          }else {
-            reset();
-          }
-        }
-        window.addEventListener('resize', el.check);
-      },
-      unbind(el) {
-        window.removeEventListener('resize',el.check);
-        el.check = null;
-      }  
-    }
-  }
-};
-
-export const allScroll = {
-  directives: {
-    'all-scroll': {
-      bind: (el, binding) => {
-        el.addEventListener('touchmove', (e) => {
-          e && (e._isScroller = true)
-          return false;
-        }, false)
-      }
-    }
-  }
-};
-
+let getHeight = (el) => {
+   return el.scrollHeight;
+ }
 
 export const stopScroll = {
   directives: {
     'stop-scroll': {
       bind: (el, binding) => {
-        if(Evn.isAndroid) return false;
+        // 由于部分机型兼容问题 暂时放开滚动
+        if(Evn.isAndroid) return;
+        el.addEventListener('touchmove', (e) => {
+          e && (e._isScroller = true)
+          return false;
+        }, false)
+        // return false;
         let viewHeight;
         let height;
-        let paddingBottom;
-        let marginBottom;
         let scrollEl = el;
         let disStart = '';
 
         el.addEventListener('touchstart', (ev) => {
           disStart = ev.touches[0].screenY
-          viewHeight = $(el).height();
+          viewHeight = el.clientHeight;
           height = getHeight(el);
-          paddingBottom = Number($(el).css('padding-bottom').replace(/px/ig,''));
-          marginBottom = Number($(el).css('margin-bottom').replace(/px/ig,''));
         }, false)
       
         el.addEventListener('touchmove', (e) => {
           height = getHeight(el);
           loadMore(e);
         }, false)
-
-        let getHeight = (el) => {
-         return $(el).children().reduce((vala,valb)=>{
-            //let paddingBottom = Number($(valb).css('padding-bottom').replace(/px/ig,''));
-            //let paddingTop = Number($(valb).css('padding-top').replace(/px/ig,''));
-            //let marginBottom = Number($(valb).css('margin-bottom').replace(/px/ig,''));
-            //let marginTop = Number($(valb).css('margin-top').replace(/px/ig,''));
-            return vala + $(valb).height();
-          },0)
-        }
-
         const loadMore = (ev) => {
           if(scrollEl.scrollTop == 0 && (ev.touches[0].screenY-disStart)>0){
-            // 页面到顶向下滑动
+            // 页面到顶向下滑动 禁止拖动
              ev && (ev._isScroller = false)
-          }else if ((scrollEl.scrollTop + viewHeight < height + paddingBottom + marginBottom)) {
-            // 页面没到底
+          }else if((scrollEl.scrollTop + viewHeight >= height) && (ev.touches[0].screenY-disStart)<0){
+            // 页面到底向上滑动 禁止拖动
+            ev && (ev._isScroller = false)
+          }else{
+            // 其余情况页面可以滚动
             ev && (ev._isScroller = true)
-          }else if((scrollEl.scrollTop + viewHeight >= height + paddingBottom + marginBottom) && (ev.touches[0].screenY-disStart)>0){
-             // 页面到底向上滑动
-             ev && (ev._isScroller = true)
           }
         }
       }
@@ -128,18 +55,14 @@ export const loadMore = {
       bind: (el, binding) => {
         let viewHeight;
         let height;
-        let paddingBottom;
-        let marginBottom;
         let requestFram;
         let oldScrollTop;
         let scrollReduce = 20;
         let scrollEl = el;
 
         el.addEventListener('touchstart', (ev) => {
-          viewHeight = $(el).height();
+          viewHeight = el.clientHeight;
           height = getHeight(el);
-          paddingBottom = Number($(el).css('padding-bottom').replace(/px/ig,''));
-          marginBottom = Number($(el).css('margin-bottom').replace(/px/ig,''));
         }, false)
       
         el.addEventListener('touchmove', (e) => {
@@ -165,15 +88,8 @@ export const loadMore = {
             }
           })
         }
-
-        let getHeight = (el) => {
-         return $(el).children().reduce((vala,valb)=>{
-            return vala + $(valb).height();
-          },0)
-        }
-
         const loadMore = (ev) => {
-          if (scrollEl.scrollTop + viewHeight >= height + paddingBottom + marginBottom - scrollReduce) {
+          if (scrollEl.scrollTop + viewHeight >= height - scrollReduce) {
             binding.value && binding.value(1);
             // ev && (ev._isScroller = true)
           }

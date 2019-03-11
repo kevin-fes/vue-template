@@ -1,7 +1,7 @@
 import {mapMutations} from 'vuex';
-import {stopScroll,allScroll} from '../directive'
+import {stopScroll} from '../directive'
 export default {
-  mixins: [stopScroll,allScroll],
+  mixins: [stopScroll],
     data(){
       return {
         

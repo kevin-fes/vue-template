@@ -10,18 +10,7 @@ import store from './store/index'
 import {fetch} from './service/fetch'
 
 require('./service/polyfill');
-require('./libs/webform.js')
 
-
-// 本地组件
- import Titlebar from './components/titlebar'
-
-const rongUis = [
-  Titlebar
-]
-rongUis.map(function (cp) {
-  Vue.use(cp)
-})
 
 // 绑定fetch到vue原型链上 方便调用
 Vue.prototype.$fetch = fetch;

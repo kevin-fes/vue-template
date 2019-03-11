@@ -10,7 +10,7 @@ function resolve (dir) {
 
 module.exports = {
   entry: {
-    libs: [resolve('src/libs/zepto.js'),resolve('src/libs/rem.js'),resolve('src/libs/fastclick.js')],
+    libs: [resolve('src/libs/rem.js'),resolve('src/libs/fastclick.js')],
     app: './src/main.js',
   },
   output: {
@@ -37,7 +37,7 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        include: [resolve('src'),resolve('node_modules/rong-ui/components')]
+        include: [resolve('src')]
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,

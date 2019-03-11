@@ -98,16 +98,6 @@ export function checkMobile (mobile) {
   }
 }
 
-// 判断密码格式
-export let checkPassword  = (password) => {
-  let reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,18}$/
-  if (reg.test(password)) {
-    return true
-  } else {
-    return false
-  }
-}
-
 // 判断身份证号格式
 export let checkIdCard = (idCard) => {
   let patten1 = '^[1-9]\\d{7}((0\\d)|(1[0-2]))(([0|1|2]\\d)|3[0-1])\\d{3}$'
@@ -265,3 +255,162 @@ export const animate = (element, target,  duration = 400, mode = 'ease-out', cal
     })
   }, 20);
 }
+
+/**
+ * 设置页面title
+ */
+export const setTitle = (title) => {
+  if (!title) return;
+  document.querySelector('title').textContent = title;
+  // hack在微信ios webview中无法修改document.title的情况
+  const iframe = document.createElement('iframe');
+  iframe.style.visibility = 'hidden';
+  iframe.style.width = '1px';
+  iframe.style.height = '1px';
+  iframe.onload = () => {
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 0);
+  };
+  document.body.appendChild(iframe);
+}
+
+/**
+ * 绑定事件 on(element, event, handler)
+ */
+export const on = (function () {
+  if (document.addEventListener) {
+    return function (element, event, handler) {
+      if (element && event && handler) {
+        element.addEventListener(event, handler, false)
+      }
+    }
+  } else {
+    return function (element, event, handler) {
+      if (element && event && handler) {
+        element.attachEvent('on' + event, handler)
+      }
+    }
+  }
+})()
+
+/**
+ * 解绑事件 off(element, event, handler)
+ */
+export const off = (function () {
+  if (document.removeEventListener) {
+    return function (element, event, handler) {
+      if (element && event) {
+        element.removeEventListener(event, handler, false)
+      }
+    }
+  } else {
+    return function (element, event, handler) {
+      if (element && event) {
+        element.detachEvent('on' + event, handler)
+      }
+    }
+  }
+})()
+
+/**
+  * removeClass
+  */
+
+ export const removeClass = (elements,cName )=>{
+  if( hasClass( elements,cName ) ){  
+    elements.className = elements.className.replace( new RegExp( "(\\s|^)" + cName + "(\\s|$)" )," " );
+  };  
+ }
+
+/**
+  * addClass
+  */
+ export const addClass = (elements,cName )=>{
+  if( !hasClass( elements,cName ) ){  
+    elements.className += " " + cName;  
+  }; 
+ }
+
+ /** 
+ *  判断某个元素是否含有某个class
+ */
+ export const hasClass = (()=>{
+  let div = document.createElement("div") ;
+  if( "classList" in div && typeof div.classList.contains === "function" ) {
+      return function(elem, className){
+          return elem.classList.contains(className) ;
+      } ;
+  } else {
+      return function(elem, className){
+          let classes = elem.className.split(/\s+/);
+          return !classes.every(item=>{
+            return !(classes[i] === className)
+          })
+      } ;
+  }
+ })()
+
+/**
+  * 获取指定class的最近父节点
+  */
+export const getParentsByClass = (element, className)=>{
+  let returnParentElement = null;
+  function getParentNode(element, className) {
+    if(element && hasClass(element,className) && element.tagName.toLowerCase() != "body") {
+      returnParentElement = element;
+    } else if(element && element.parentElement) {
+      getParentNode(element.parentElement, className);
+    }
+  }
+  getParentNode(element, className);
+  return returnParentElement;
+}
+
+/**
+ * @param {Number} timeStamp 传入的时间戳
+ * @param {Number} startType 要返回的时间字符串的格式类型，传入'year'则返回年开头的完整时间
+ */
+const getDate = (timeStamp, startType) => {
+  const d = new Date(timeStamp * 1000)
+  const year = d.getFullYear()
+  const month = getHandledValue(d.getMonth() + 1)
+  const date = getHandledValue(d.getDate())
+  const hours = getHandledValue(d.getHours())
+  const minutes = getHandledValue(d.getMinutes())
+  const second = getHandledValue(d.getSeconds())
+  let resStr = ''
+  if (startType === 'year') resStr = year + '-' + month + '-' + date + ' ' + hours + ':' + minutes + ':' + second
+  else resStr = month + '-' + date + ' ' + hours + ':' + minutes
+  return resStr
+}
+
+/**
+ * @param {String|Number} timeStamp 时间戳毫秒数
+ * @returns {String} 相对时间字符串
+ */
+export const getRelativeTime = timeStamp => {
+  Math.floor(timeStamp /= 1000);
+  timeStamp = Number(timeStamp);
+  const currentTime = Math.floor(Date.parse(new Date()) / 1000)
+  const IS_EARLY =  !!(timeStamp < currentTime);
+  let diff = currentTime - timeStamp
+  // 如果IS_EARLY为false则差值取反
+  if (!IS_EARLY) diff = -diff
+  let resStr = ''
+  const dirStr = IS_EARLY ? '前' : '后'
+  // 少于等于59秒
+  if (diff <= 59) resStr = diff + '秒' + dirStr
+  // 多于59秒，少于等于59分钟59秒
+  else if (diff > 59 && diff <= 3599) resStr = Math.floor(diff / 60) + '分钟' + dirStr
+  // 多于59分钟59秒，少于等于23小时59分钟59秒
+  else if (diff > 3599 && diff <= 86399) resStr = Math.floor(diff / 3600) + '小时' + dirStr
+  // 多于23小时59分钟59秒，少于等于29天59分钟59秒
+  else if (diff > 86399 && diff <= 2623859) resStr = Math.floor(diff / 86400) + '天' + dirStr
+  // 多于29天59分钟59秒，少于364天23小时59分钟59秒，且传入的时间戳早于当前
+  else if (diff > 2623859 && diff <= 31567859 && IS_EARLY) resStr = getDate(timeStamp)
+  else resStr = getDate(timeStamp, 'year')
+  return resStr
+}
+
+
